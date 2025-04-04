@@ -140,8 +140,8 @@ int main() {
   // uint128_t n1 = init128("1204759", DEC_BASE);
   // uint128_t n2 = init128("344", DEC_BASE);
 
-  uint128_t n1 = init128("659", DEC_BASE);
-  uint128_t n2 = init128("344", DEC_BASE);
+  uint128_t n1 = init128("655", DEC_BASE);
+  uint128_t n2 = init128("347", DEC_BASE);
 
   print128(n1);
   putc('\n', stdout);

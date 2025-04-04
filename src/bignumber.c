@@ -17,6 +17,15 @@ struct uint128 {
   unsigned char ptrlen;
 };
 
+#define ZEROES_REMOVE(num)                                                     \
+  do {                                                                         \
+    while (num->n[0] == '0' && num->nlen > 1) {                                \
+      for (int i = 1; i < num->nlen; ++i)                                      \
+        num->n[i - 1] = num->n[i];                                             \
+      num->nlen--;                                                             \
+    }                                                                          \
+  } while (0)
+
 #define ZEROES_FILL(dest, src, len, offset)                                    \
   do {                                                                         \
     for (int i = len; i >= 0; --i)                                             \
@@ -39,6 +48,17 @@ static int is_valid_num(char *num, size_t len, char base) {
     return !(len > HEX128_MAX_LEN);
   default:;
   }
+
+  return 0;
+}
+
+int numcmp(uint128_t n1, uint128_t n2) {
+  if (n1->nlen != n2->nlen)
+    return n1->nlen < n2->nlen ? 1 : -1;
+
+  for (int i = 0; i < n1->nlen; ++i)
+    if (n1->n[i] != n2->n[i])
+      return n1->n[i] < n2->n[i] ? 1 : -1;
 
   return 0;
 }
@@ -132,6 +152,29 @@ void addu128(uint128_t dest, const uint128_t src) {
   }
 }
 
-void subtractu128(uint128_t dest, uint128_t src) {}
+void subtractu128(uint128_t dest, uint128_t src) {
+  int offset = abs(dest->nlen - src->nlen), res = 0, dec = 0;
+  char buff[BIN128_MAX_LEN];
+
+  // check if src is greater than dest, we cannot store a negative number
+  // TODO check numbers when they have equal length
+  if (numcmp(dest, src) == 1) {
+    dest->n[0] = '0';
+    dest->nlen = 1;
+    // TODO set error
+    return;
+  }
+
+  // TODO check numbers == base
+  ZEROES_FILL(buff, src->n, src->nlen - 1, offset);
+
+  for (int i = dest->nlen - 1; i >= 0; --i) {
+    res = (dest->n[i] - '0') - (buff[i] - '0') - dec;
+    dec = res < 0 ? 1 : 0;
+    dest->n[i] = dec ? (res + 10) + '0' : res + '0';
+  }
+
+  ZEROES_REMOVE(dest);
+}
 
 void printu128(uint128_t num) { write(STDOUT_FILENO, num->n, num->nlen); }
