@@ -117,9 +117,8 @@ err:
 
 void destroyu128(uint128_t num) {
   if (num) {
-    if (num->n) {
+    if (num->n)
       free(num->n);
-    }
     free(num);
   }
 }
@@ -143,7 +142,7 @@ void addu128(uint128_t dest, const uint128_t src) {
     dest->n[i] = dec ? (res - 10) + '0' : res + '0';
   }
 
-  // TODO check that the sum do not overflow
+  // TODO check that the sum does not overflow
   if (dec) {
     for (i = dest->nlen - 1; i >= 0; --i)
       dest->n[i + 1] = dest->n[i];
@@ -157,7 +156,6 @@ void subtractu128(uint128_t dest, uint128_t src) {
   char buff[BIN128_MAX_LEN];
 
   // check if src is greater than dest, we cannot store a negative number
-  // TODO check numbers when they have equal length
   if (numcmp(dest, src) == 1) {
     dest->n[0] = '0';
     dest->nlen = 1;
